@@ -3,10 +3,17 @@
 import { useState } from "react";
 import { HfInference } from "@huggingface/inference";
 
-const inference = new HfInference("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");
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faRobot } from '@fortawesome/free-solid-svg-icons'; // Importing icons
+
+const responses = {
+  tiredness: "Feeling unusually tired and weak can be caused by a variety of factors, including stress, lack of sleep, or underlying health conditions. It’s important to consider other symptoms you might be experiencing and consult a healthcare professional for a thorough evaluation and accurate diagnosis.",
+  anxiety: "Anxiety and feeling overwhelmed can be challenging. It’s beneficial to practice relaxation techniques such as deep breathing, meditation, or physical exercise. However, if these feelings persist, it’s crucial to seek support from a mental health professional who can provide tailored strategies and support.",
+  headache: "Persistent headaches can have various causes, including tension, dehydration, or more serious conditions like migraines or sinusitis. It’s important to track the frequency, duration, and intensity of your headaches and consult a healthcare provider to determine the underlying cause and appropriate treatment.",
+  medication: "It’s important to read the information provided with your medication and discuss any concerns with your healthcare provider. Common side effects are usually listed, but if you experience any severe or unusual symptoms, contact your doctor immediately for guidance.",
+  sleep: "Improving sleep quality can often be achieved by maintaining a consistent sleep schedule, creating a relaxing bedtime routine, and ensuring your sleep environment is comfortable. Limiting screen time before bed and avoiding caffeine in the evening can also help. If sleep issues persist, consider consulting a healthcare provider for further evaluation."
+};
 
 export default function MentalHealthChatbot() {
   const [input, setInput] = useState("");
@@ -15,9 +22,21 @@ export default function MentalHealthChatbot() {
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };
+  
 
   const handleSend = async () => {
     if (!input.trim()) return;
+
+    // const res = await fetch('/api/chat', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ input }),
+    // });
+
+    // const data = await res.json();
+    // console.log("data",data)
 
     const userMessage = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -25,26 +44,28 @@ export default function MentalHealthChatbot() {
 
     let botResponse = "";
 
-    try {
-      for await (const chunk of inference.chatCompletionStream({
-        model: "microsoft/DialoGPT-large",
-        messages: [...messages, userMessage],
-        max_tokens: 150,  // Reduced token limit for more concise responses
-      })) {
-        if (chunk.choices[0]?.delta?.content) {
-          botResponse += chunk.choices[0].delta.content;
-        }
+    // try {
+    //   for await (const chunk of inference.chatCompletionStream({
+    //     model: "microsoft/DialoGPT-large",
+    //     messages: [...messages, userMessage],
+    //     max_tokens: 150,  // Reduced token limit for more concise responses
+    //   })) {
+    //     if (chunk.choices[0]?.delta?.content) {
+    //       botResponse += chunk.choices[0].delta.content;
+    //     }
 
-        // Break the loop if the response seems complete
-        if (chunk.choices[0]?.finish_reason) {
-          break;
-        }
-      }
-    } catch (error) {
-      botResponse = "Sorry, I'm having trouble understanding. Can you please rephrase?";
-    }
+    //     // Break the loop if the response seems complete
+    //     if (chunk.choices[0]?.finish_reason) {
+    //       break;
+    //     }
+    //   }
+ 
 
-    setMessages((prev) => [...prev, { role: "assistant", content: botResponse.trim() }]);
+    
+
+    const responseKey = Object.keys(responses).find(key => input.toLowerCase().includes(key));
+
+    setMessages((prev) => [...prev, { role: "assistant", content: responseKey ? responses[responseKey] : "I'm here to help. Please provide more details or consult a healthcare professional for specific concerns." }]);
   };
 
   return (
@@ -97,7 +118,7 @@ export default function MentalHealthChatbot() {
       <iframe
         width="740"
         height="500"
-        src="https://www.youtube.com/embed/your-video-id"
+        src="https://www.youtube.com/watch?v=5oHnGu-TZ3E"
         title="YouTube video player"
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
