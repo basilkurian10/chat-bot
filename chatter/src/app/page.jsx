@@ -61,7 +61,7 @@ export default function MentalHealthChatbot() {
     //   }
  
 
-    
+
 
     const responseKey = Object.keys(responses).find(key => input.toLowerCase().includes(key));
 
@@ -127,7 +127,7 @@ export default function MentalHealthChatbot() {
     </div>
     <div>
       <iframe
-        src="/Mental_Health_ChatBot.pdf"
+        src="/Mental_Health_bot.pdf"
         width="500px"
         height="500px"
         style={{ border: 'none' }}
